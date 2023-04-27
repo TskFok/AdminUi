@@ -28,23 +28,26 @@
 import SendRequest from "@/plugins/axiosInstance";
 import {ElNotification} from "element-plus";
 import router from "@/plugins/router";
+import {ref} from "vue";
 
 export default {
     name: "Login",
-    data() {
-        return {
-            email: "",
-            password: ""
+    beforeCreate() {
+        if (localStorage.getItem("token")) {
+            router.push("/home")
         }
     },
-    methods: {
-        send() {
+    setup() {
+        let email = ref("")
+        let password = ref("")
+
+        function send() {
             SendRequest({
                 method: 'post',
                 url: '/login',
                 data: {
-                    email: this.email,
-                    password: this.password
+                    email: email.value,
+                    password: password.value
                 },
             }).then((resp) => {
                 ElNotification({
@@ -62,6 +65,12 @@ export default {
                     type: 'error',
                 })
             });
+        }
+
+        return {
+            send,
+            email,
+            password
         }
     }
 }

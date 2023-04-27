@@ -8,7 +8,11 @@ import router from "@/plugins/router";
 export default {
     name: "Default",
     beforeCreate() {
-        router.push("/login")
+        if (localStorage.getItem("token")) {
+            router.push("/home")
+        } else {
+            router.push("/login")
+        }
     }
 }
 </script>
