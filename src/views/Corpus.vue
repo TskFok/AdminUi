@@ -193,6 +193,7 @@ export default {
                 })
                 resetList({page: 1, size: 10})
                 dialogFormVisible.value = false
+                form.corpus = ""
             }).catch((err) => {
                 console.log(err)
                 ElMessage({
