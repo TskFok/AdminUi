@@ -20,7 +20,7 @@ export default {
     name: "Pagination",
     setup(props, {emit}) {
         let pageSize = ref(10)
-        let pageCount = ref(inject("pageCount"))
+        let pageCount = inject("pageCount")
         let currentPage = ref(1)
 
         function handleCurrentChange(page) {
