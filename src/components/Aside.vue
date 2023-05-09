@@ -24,6 +24,12 @@
                 </el-icon>
                 <span>语料库</span>
             </el-menu-item>
+            <el-menu-item index="3">
+                <el-icon>
+                    <document/>
+                </el-icon>
+                <span>羊驼语料库</span>
+            </el-menu-item>
         </el-menu>
     </el-col>
 </template>
@@ -54,6 +60,9 @@ export default {
                     break
                 case "2":
                     router.push('/corpus')
+                    break
+                case "3":
+                    router.push('/corpus-vicuna')
                     break
             }
         }

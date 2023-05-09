@@ -68,7 +68,7 @@ import {ElMessage, ElMessageBox, ElNotification} from "element-plus";
 import router from "@/plugins/router";
 
 export default {
-    name: "Corpus",
+    name: "CorpusVicuna",
     components: {Title, Pagination, Header, Aside},
     beforeCreate() {
         this.send(1, 10).then((res) => {
@@ -91,7 +91,7 @@ export default {
         let count = ref(0)
 
         provide('pageCount', count)
-        provide('active', "2")
+        provide('active', "3")
 
         let dialogFormVisible = ref(false)
 
@@ -102,7 +102,7 @@ export default {
         async function send(page, size) {
             let result = await SendRequest({
                 method: 'GET',
-                url: '/corpus?page=' + page + '&size=' + size,
+                url: '/corpus-vicuna?page=' + page + '&size=' + size,
                 headers: {
                     token: localStorage.getItem("token")
                 },
@@ -114,7 +114,7 @@ export default {
         function handleDelete(index, row) {
             SendRequest({
                 method: 'DELETE',
-                url: '/corpus/' + row.id,
+                url: '/corpus-vicuna/' + row.id,
                 headers: {
                     token: localStorage.getItem("token")
                 },
@@ -140,7 +140,7 @@ export default {
             }).then(({value}) => {
                 SendRequest({
                     method: 'PUT',
-                    url: '/corpus',
+                    url: '/corpus-vicuna',
                     data: {
                         "corpus": value,
                         "id": row.id
@@ -178,7 +178,7 @@ export default {
         function createIt() {
             SendRequest({
                 method: 'POST',
-                url: '/corpus',
+                url: '/corpus-vicuna',
                 data: {
                     "corpus": form.corpus
                 },

@@ -4,6 +4,7 @@ import Default from "@/views/Default.vue";
 import Home from "@/views/Home.vue";
 import User from "@/views/User.vue";
 import Corpus from "@/views/Corpus.vue";
+import CorpusVicuna from "@/views/CorpusVicuna.vue";
 
 //路由数组
 const routes = [
@@ -35,6 +36,12 @@ const routes = [
         path: "/corpus",
         name: "corpus",
         component: Corpus,
+        children: []
+    },
+    {
+        path: "/corpus-vicuna",
+        name: "corpus-vicuna",
+        component: CorpusVicuna,
         children: []
     },
 ]
