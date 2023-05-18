@@ -26,14 +26,63 @@
                         </template>
                     </el-dialog>
                 </el-header>
+                <el-dialog v-model="dialogItemFormVisible" title="新增语料">
+                    <el-form :model="formItem">
+                        <el-form-item label="语料" :label-width="40">
+                            <el-input v-model="formItem.corpus" autocomplete="off"/>
+                        </el-form-item>
+                    </el-form>
+                    <template #footer>
+                        <span class="dialog-footer">
+                            <el-button @click="dialogItemFormVisible = false">取消</el-button>
+                            <el-button @click="createItem(detailId)" type="primary">
+                              确认
+                            </el-button>
+                        </span>
+                    </template>
+                </el-dialog>
+                <el-drawer
+                        v-model="table"
+                        title="子物料"
+                        direction="rtl"
+                        size="50%"
+                >
+                    <el-col :offset="22">
+                        <el-button type="primary" @click="dialogItemFormVisible = true">新增</el-button>
+                    </el-col>
+                    <el-table :data="gridData">
+                        <el-table-column property="corpus" label="语料" width="450"/>
+                        <el-table-column property="created_at" label="创建时间" width="150"/>
+                        <el-table-column property="updated_at" label="结束时间" width="150"/>
+                        <el-table-column fixed="right" label="操作" width="150">
+                            <template #default="scopeItem">
+                                <el-button size="small" @click="handleItemEdit(scopeItem.$index, scopeItem.row, detailId)"
+                                >修改
+                                </el-button
+                                >
+                                <el-button
+                                        size="small"
+                                        type="danger"
+                                        @click="handleItemDelete(scopeItem.$index, scopeItem.row, detailId)"
+                                >删除
+                                </el-button
+                                >
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-drawer>
                 <el-main>
                     <el-table :data="this.dataList" border height="450" max-height="550">
                         <el-table-column prop="id" label="Id" width="80"/>
                         <el-table-column prop="corpus" label="语料" width="880"/>
                         <el-table-column prop="created_at" label="创建时间" width="150"/>
                         <el-table-column prop="updated_at" label="修改时间" width="150"/>
-                        <el-table-column label="操作" fixed="right" width="150">
+                        <el-table-column label="操作" fixed="right" width="200">
                             <template #default="scope">
+                                <el-button size="small" type="success" @click="handleInfo(scope.$index, scope.row)"
+                                >详情
+                                </el-button
+                                >
                                 <el-button size="small" @click="handleEdit(scope.$index, scope.row)"
                                 >修改
                                 </el-button
@@ -89,14 +138,21 @@ export default {
     setup() {
         let dataList = ref([])
         let count = ref(0)
+        let gridData = ref([])
+        let table = ref(false)
 
         provide('pageCount', count)
         provide('active', "3")
 
         let dialogFormVisible = ref(false)
+        let dialogItemFormVisible = ref(false)
 
         const form = reactive({
             corpus: '',
+        })
+
+        const formItem = reactive({
+            corpus: ""
         })
 
         async function send(page, size) {
@@ -164,6 +220,27 @@ export default {
             })
         }
 
+        let detailId = ref(0)
+
+        function handleInfo(index, row) {
+            detailId.value = row.id
+            SendRequest({
+                method: 'GET',
+                url: '/corpus-vicuna/detail?id=' + row.id,
+                headers: {
+                    token: localStorage.getItem("token")
+                },
+            }).then((res) => {
+                gridData.value = res.data
+                table.value = true
+            }).catch((err) => {
+                ElMessage({
+                    type: 'info',
+                    message: '请求失败',
+                })
+            })
+        }
+
         function resetList(obj) {
             send(obj.page, obj.size).then((res) => {
                 //不能修改count,会导致重新触发handleCurrentChange
@@ -203,6 +280,110 @@ export default {
             })
         }
 
+        function addItem() {
+            dialogItemFormVisible.value = true
+        }
+
+        function createItem(id) {
+            SendRequest({
+                method: 'POST',
+                url: '/corpus-vicuna',
+                data: {
+                    "corpus": formItem.corpus,
+                    "pid": id
+                },
+                headers: {
+                    token: localStorage.getItem("token")
+                },
+            }).then((res) => {
+                ElNotification({
+                    title: "请求成功",
+                    message: "新增成功",
+                    type: 'success',
+                })
+                dialogItemFormVisible.value = false
+                resetItem(id)
+                formItem.corpus = ""
+            }).catch((err) => {
+                console.log(err)
+                ElMessage({
+                    type: 'info',
+                    message: '新增语料失败',
+                })
+            })
+        }
+
+        function resetItem(id) {
+            SendRequest({
+                method: 'GET',
+                url: '/corpus-vicuna/detail?id=' + id,
+                headers: {
+                    token: localStorage.getItem("token")
+                },
+            }).then((res) => {
+                gridData.value = res.data
+                table.value = true
+            }).catch((err) => {
+                ElMessage({
+                    type: 'info',
+                    message: '请求失败',
+                })
+            })
+        }
+
+        function handleItemEdit(index, row, detailId) {
+            ElMessageBox.prompt('输入新的语料', '修改语料', {
+                confirmButtonText: 'OK',
+                cancelButtonText: 'Cancel',
+            }).then(({value}) => {
+                SendRequest({
+                    method: 'PUT',
+                    url: '/corpus-vicuna',
+                    data: {
+                        "corpus": value,
+                        "id": row.id
+                    },
+                    headers: {
+                        token: localStorage.getItem("token")
+                    },
+                }).then((res) => {
+                    ElNotification({
+                        title: "请求成功",
+                        message: "修改成功",
+                        type: 'success',
+                    })
+                    resetItem(detailId)
+                }).catch((err) => {
+                    ElMessage({
+                        type: 'info',
+                        message: '修改语料失败',
+                    })
+                })
+            })
+        }
+
+        function handleItemDelete(index, row, detailId) {
+            SendRequest({
+                method: 'DELETE',
+                url: '/corpus-vicuna/' + row.id,
+                headers: {
+                    token: localStorage.getItem("token")
+                },
+            }).then((res) => {
+                ElNotification({
+                    title: "请求成功",
+                    message: "删除成功",
+                    type: 'success',
+                })
+                resetItem(detailId)
+            }).catch((err) => {
+                ElMessage({
+                    type: 'info',
+                    message: '删除语料失败',
+                })
+            })
+        }
+
         return {
             dataList,
             count,
@@ -213,7 +394,17 @@ export default {
             openCreateForm,
             dialogFormVisible,
             form,
-            createIt
+            createIt,
+            handleInfo,
+            gridData,
+            table,
+            addItem,
+            dialogItemFormVisible,
+            detailId,
+            createItem,
+            formItem,
+            handleItemEdit,
+            handleItemDelete
         }
     }
 }
