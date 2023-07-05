@@ -8,4 +8,4 @@ RUN npm install -g npm@9.7.2
 
 EXPOSE 9933
 
-CMD [ "node", "server.js" ]
+CMD [ "npm", "run", "dev" ]
