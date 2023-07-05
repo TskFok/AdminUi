@@ -1,12 +1,11 @@
-FROM node:20.3.1
+FROM node:20.2.0-bullseye-slim
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm install -g npm@9.7.2
-RUN npm install --no-bin-links
+RUN npm install
 
 EXPOSE 9933
 
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "dev", "--", "--port=9933" ]
