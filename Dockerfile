@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 RUN npm install -g npm@9.7.2
-RUN npm install
+RUN npm install --no-bin-links
 
 EXPOSE 9933
 
